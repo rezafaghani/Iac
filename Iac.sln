@@ -1,8 +1,35 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "services", "services", "{9EB1EE65-62E6-4511-86C4-6365DDE0D8E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Iac.Domain", "services\Iac.Domain\Iac.Domain.csproj", "{538F1EB3-04B2-4DE0-B270-1713BD21E31A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Iac.Api", "services\Iac.Api\Iac.Api.csproj", "{5BB455C7-65A4-4A88-B501-3333C6E0EFBF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Iac.Infrastructure", "services\Iac.Infrastructure\Iac.Infrastructure.csproj", "{AFB24828-B125-43DA-8F27-21CA65F7E787}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{538F1EB3-04B2-4DE0-B270-1713BD21E31A} = {9EB1EE65-62E6-4511-86C4-6365DDE0D8E3}
+		{5BB455C7-65A4-4A88-B501-3333C6E0EFBF} = {9EB1EE65-62E6-4511-86C4-6365DDE0D8E3}
+		{AFB24828-B125-43DA-8F27-21CA65F7E787} = {9EB1EE65-62E6-4511-86C4-6365DDE0D8E3}
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{538F1EB3-04B2-4DE0-B270-1713BD21E31A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{538F1EB3-04B2-4DE0-B270-1713BD21E31A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{538F1EB3-04B2-4DE0-B270-1713BD21E31A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{538F1EB3-04B2-4DE0-B270-1713BD21E31A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5BB455C7-65A4-4A88-B501-3333C6E0EFBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BB455C7-65A4-4A88-B501-3333C6E0EFBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BB455C7-65A4-4A88-B501-3333C6E0EFBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BB455C7-65A4-4A88-B501-3333C6E0EFBF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AFB24828-B125-43DA-8F27-21CA65F7E787}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFB24828-B125-43DA-8F27-21CA65F7E787}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFB24828-B125-43DA-8F27-21CA65F7E787}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFB24828-B125-43DA-8F27-21CA65F7E787}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
