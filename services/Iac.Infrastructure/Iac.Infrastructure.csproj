@@ -10,10 +10,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Repositories" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\Iac.Domain\Iac.Domain.csproj" />
     </ItemGroup>
 

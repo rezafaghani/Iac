@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Polly;
 
-namespace WebHost.Customization
+namespace Microsoft.AspNetCore.Hosting
 {
     public static class IWebHostExtensions
     {

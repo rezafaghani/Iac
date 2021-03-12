@@ -10,6 +10,7 @@ namespace Iac.Domain.AggregateModels
         public string Title { get; set; }
         public string ImageName { get; set; }
         public long StackId { get; set; }
+        public long NetworkId { get; set; }
 
         #endregion | Properties |
 
@@ -17,6 +18,7 @@ namespace Iac.Domain.AggregateModels
 
         public ICollection<StackItemVariablesEntity> Variables { get; set; }
         public StackEntity Stack { get; set; }
+        public NetworkEntity Network { get; set; }
 
         #endregion
     }

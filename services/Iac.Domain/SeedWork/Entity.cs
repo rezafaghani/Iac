@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using MediatR;
 
 namespace Iac.Domain.SeedWork
@@ -9,9 +10,23 @@ namespace Iac.Domain.SeedWork
         private int? _requestedHashCode;
 
         public virtual int Id { get; protected set; }
+        public bool Deleted { get; set; }
+        public DateTime CreateDateTime { get; protected set; }
+        public DateTime? UpdateDateTime { get; protected set; }
+        public DateTime? DeleteDateTime { get; protected set; }
+        public long CreatedBy { get; protected set; }
+        public long? UpdatedBy { get; protected set; }
+        public long? DeletedBy { get; protected set; }
 
         public IReadOnlyCollection<INotification> DomainEvents => _domainEvents?.AsReadOnly();
-
+        public void SetDeleted() => Deleted = true;
+        public void SetCreatedBy(long id) => CreatedBy = id;
+        public void SetUpdatedBy(long id) => UpdatedBy = id;
+        public void SetDeletedBy(long id) => DeletedBy = id;
+        public void SetCreateDateTime() => CreateDateTime = DateTime.Now;
+        public void SetUpdateDateTime() => UpdateDateTime = DateTime.Now;
+        public void SetDeleteDateTime() => DeleteDateTime = DateTime.Now;
+        public void UndoDeleted() => Deleted = false;
         public void AddDomainEvent(INotification eventItem)
         {
             _domainEvents = _domainEvents ?? new List<INotification>();
