@@ -14,7 +14,7 @@
     <ItemGroup>
       <Folder Include="Factories" />
       <Folder Include="Infrastructure\AutofacModules" />
-      <Folder Include="Infrastructure\Stacks" />
+      <Folder Include="Infrastructure\Extensions" />
     </ItemGroup>
 
 </Project>
