@@ -9,7 +9,7 @@ namespace Iac.Domain.SeedWork
         private List<INotification> _domainEvents;
         private int? _requestedHashCode;
 
-        public virtual int Id { get; protected set; }
+        public virtual long Id { get; protected set; }
         public bool Deleted { get; set; }
         public DateTime CreateDateTime { get; protected set; }
         public DateTime? UpdateDateTime { get; protected set; }

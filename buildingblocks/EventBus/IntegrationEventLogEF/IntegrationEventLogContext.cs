@@ -18,7 +18,7 @@ namespace IntegrationEventLogEF
 
         void ConfigureIntegrationEventLogEntry(EntityTypeBuilder<IntegrationEventLogEntry> builder)
         {
-            builder.ToTable("IntegrationEventLog");
+            builder.ToTable("integrationeventLog");
 
             builder.HasKey(e => e.EventId);
 

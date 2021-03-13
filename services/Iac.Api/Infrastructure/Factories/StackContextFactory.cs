@@ -6,7 +6,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace Iac.Api.Infrastructure.Factories
 {
-    public class StackContextFactory:IDesignTimeDbContextFactory<StackContext>
+    public class StackContextFactory : IDesignTimeDbContextFactory<StackContext>
     {
         public StackContext CreateDbContext(string[] args)
         {
@@ -18,7 +18,8 @@ namespace Iac.Api.Infrastructure.Factories
 
             var optionsBuilder = new DbContextOptionsBuilder<StackContext>();
 
-            optionsBuilder.UseNpgsql(config["ConnectionString"], npgsqlOptionsAction: o => o.MigrationsAssembly("Iac.API"));
+            optionsBuilder.UseNpgsql(config["ConnectionString"],
+                npgsqlOptionsAction: o => o.MigrationsAssembly("Iac.Api"));
 
             return new StackContext(optionsBuilder.Options);
         }

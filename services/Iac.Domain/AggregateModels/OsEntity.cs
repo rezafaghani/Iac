@@ -10,12 +10,14 @@ namespace Iac.Domain.AggregateModels
         public string Title { get; set; }
         public string ImageName { get; set; }
         public string Version { get; set; }
+        public long LocationId { get; set; }
 
         #endregion | Properties |
 
         #region | Navigations |
 
         public ICollection<StackEntity> Stacks { get; set; }
+        public LocationEntity Location { get; set; }
 
         #endregion | Navigations |
     }

@@ -16,6 +16,7 @@ namespace Iac.Domain.AggregateModels
 
         public NetworkEnum NetworkType { get; set; }
 
+        public string Name { get; set; }
         public string Hostname { get; set; }
         public string DomainName { get; set; }
         public string MacAddress { get; set; }

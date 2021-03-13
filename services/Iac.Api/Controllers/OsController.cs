@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Iac.Api.Controllers
 {
-    public class IacController : Controller
+    public class OsController : Controller
     {
         // GET
         public Task<IActionResult> Index()

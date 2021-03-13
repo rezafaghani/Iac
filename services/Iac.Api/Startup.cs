@@ -50,10 +50,7 @@ namespace Iac.Api
         public virtual IServiceProvider ConfigureServices(IServiceCollection services)
         {
             services
-                .AddGrpc(options =>
-                {
-                    options.EnableDetailedErrors = true;
-                })
+                .AddGrpc(options => { options.EnableDetailedErrors = true; })
                 .Services
                 .AddApplicationInsights(Configuration)
                 .AddCustomMvc()
@@ -89,12 +86,14 @@ namespace Iac.Api
             }
 
             app.UseSwagger()
-               .UseSwaggerUI(c =>
-               {
-                   c.SwaggerEndpoint($"{ (!string.IsNullOrEmpty(pathBase) ? pathBase : string.Empty) }/swagger/v1/swagger.json", "Ordering.API V1");
-                   c.OAuthClientId("orderingswaggerui");
-                   c.OAuthAppName("Ordering Swagger UI");
-               });
+                .UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint(
+                        $"{(!string.IsNullOrEmpty(pathBase) ? pathBase : string.Empty)}/swagger/v1/swagger.json",
+                        "Ordering.API V1");
+                    c.OAuthClientId("orderingswaggerui");
+                    c.OAuthAppName("Ordering Swagger UI");
+                });
 
             app.UseRouting();
             app.UseCors("CorsPolicy");
@@ -102,13 +101,13 @@ namespace Iac.Api
 
             app.UseEndpoints(endpoints =>
             {
-                
                 endpoints.MapDefaultControllerRoute();
                 endpoints.MapControllers();
                 endpoints.MapGet("/_proto/", async ctx =>
                 {
                     ctx.Response.ContentType = "text/plain";
-                    using var fs = new FileStream(Path.Combine(env.ContentRootPath, "Proto", "basket.proto"), FileMode.Open, FileAccess.Read);
+                    using var fs = new FileStream(Path.Combine(env.ContentRootPath, "Proto", "basket.proto"),
+                        FileMode.Open, FileAccess.Read);
                     using var sr = new StreamReader(fs);
                     while (!sr.EndOfStream)
                     {
@@ -137,8 +136,6 @@ namespace Iac.Api
         private void ConfigureEventBus(IApplicationBuilder app)
         {
             var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
-
-            
         }
 
         protected virtual void ConfigureAuth(IApplicationBuilder app)
@@ -150,7 +147,8 @@ namespace Iac.Api
 
     static class CustomExtensionsMethods
     {
-        public static IServiceCollection AddApplicationInsights(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddApplicationInsights(this IServiceCollection services,
+            IConfiguration configuration)
         {
             services.AddApplicationInsightsTelemetry(configuration);
             services.AddApplicationInsightsKubernetesEnricher();
@@ -161,24 +159,21 @@ namespace Iac.Api
         public static IServiceCollection AddCustomMvc(this IServiceCollection services)
         {
             // Add framework services.
-            services.AddControllers(options =>
-                {
-                    options.Filters.Add(typeof(HttpGlobalExceptionFilter));
-                })
+            services.AddControllers(options => { options.Filters.Add(typeof(HttpGlobalExceptionFilter)); })
                 // Added for functional tests
-                .AddApplicationPart(typeof(IacController).Assembly)
+                .AddApplicationPart(typeof(OsController).Assembly)
                 .AddNewtonsoftJson()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
-            ;
+                ;
 
             services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy",
                     builder => builder
-                    .SetIsOriginAllowed((host) => true)
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .AllowCredentials());
+                        .SetIsOriginAllowed((host) => true)
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials());
             });
 
             return services;
@@ -194,75 +189,64 @@ namespace Iac.Api
                 .AddNpgSql(
                     configuration["ConnectionString"],
                     name: "OrderingDB-check",
-                    tags: new string[] { "orderingdb" });
+                    tags: new string[] {"orderingdb"});
 
-           
-            
-                hcBuilder
-                    .AddRabbitMQ(
-                        $"amqp://{configuration["EventBusConnection"]}",
-                        name: "ordering-rabbitmqbus-check",
-                        tags: new string[] { "rabbitmqbus" });
-            
+
+            hcBuilder
+                .AddRabbitMQ(
+                    $"amqp://{configuration["EventBusConnection"]}",
+                    name: "ordering-rabbitmqbus-check",
+                    tags: new string[] {"rabbitmqbus"});
+
 
             return services;
         }
 
-        public static IServiceCollection AddCustomDbContext(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddCustomDbContext(this IServiceCollection services,
+            IConfiguration configuration)
         {
             services.AddDbContext<StackContext>(options =>
-                   {
-                       options.UseSqlServer(configuration["ConnectionString"],
-                           sqlServerOptionsAction: sqlOptions =>
-                           {
-                               sqlOptions.MigrationsAssembly(typeof(Startup).GetTypeInfo().Assembly.GetName().Name);
-                               sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
-                           });
-                   },
-                       ServiceLifetime.Scoped  //Showing explicitly that the DbContext is shared across the HTTP request scope (graph of objects started in the HTTP request)
-                   );
+                {
+                    options.UseNpgsql(configuration["ConnectionString"],
+                        npgsqlOptionsAction: sqlOptions =>
+                        {
+                            sqlOptions.MigrationsAssembly(typeof(Startup).GetTypeInfo().Assembly.GetName().Name);
+                            sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30),
+                                errorCodesToAdd: null);
+                        });
+                },
+                ServiceLifetime
+                    .Scoped //Showing explicitly that the DbContext is shared across the HTTP request scope (graph of objects started in the HTTP request)
+            );
 
             services.AddDbContext<IntegrationEventLogContext>(options =>
             {
-                options.UseSqlServer(configuration["ConnectionString"],
-                                     sqlServerOptionsAction: sqlOptions =>
-                                     {
-                                         sqlOptions.MigrationsAssembly(typeof(Startup).GetTypeInfo().Assembly.GetName().Name);
-                                         //Configuring Connection Resiliency: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency 
-                                         sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
-                                     });
+                options.UseNpgsql(configuration["ConnectionString"],
+                    npgsqlOptionsAction: sqlOptions =>
+                    {
+                        sqlOptions.MigrationsAssembly(typeof(Startup).GetTypeInfo().Assembly.GetName().Name);
+                        //Configuring Connection Resiliency: https://docs.microsoft.com/en-us/ef/core/miscellaneous/connection-resiliency 
+                        sqlOptions.EnableRetryOnFailure(maxRetryCount: 15, maxRetryDelay: TimeSpan.FromSeconds(30),
+                            errorCodesToAdd: null);
+                    });
             });
 
             return services;
         }
 
-        public static IServiceCollection AddCustomSwagger(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddCustomSwagger(this IServiceCollection services,
+            IConfiguration configuration)
         {
             services.AddSwaggerGen(options =>
             {
                 options.DescribeAllEnumsAsStrings();
                 options.SwaggerDoc("v1", new OpenApiInfo
                 {
-                    Title = "eShopOnContainers - Ordering HTTP API",
+                    Title = "Iac HTTP API",
                     Version = "v1",
-                    Description = "The Ordering Service HTTP API"
+                    Description = "The Iac Service HTTP API"
                 });
-                options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
-                {
-                    Type = SecuritySchemeType.OAuth2,
-                    Flows = new OpenApiOAuthFlows()
-                    {
-                        Implicit = new OpenApiOAuthFlow()
-                        {
-                            AuthorizationUrl = new Uri($"{configuration.GetValue<string>("IdentityUrlExternal")}/connect/authorize"),
-                            TokenUrl = new Uri($"{configuration.GetValue<string>("IdentityUrlExternal")}/connect/token"),
-                            Scopes = new Dictionary<string, string>()
-                            {
-                                { "orders", "Ordering API" }
-                            }
-                        }
-                    }
-                });
+
 
                 options.OperationFilter<AuthorizeCheckOperationFilter>();
             });
@@ -270,7 +254,8 @@ namespace Iac.Api
             return services;
         }
 
-        public static IServiceCollection AddCustomIntegrations(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddCustomIntegrations(this IServiceCollection services,
+            IConfiguration configuration)
         {
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddTransient<IIdentityService, IdentityService>();
@@ -327,7 +312,8 @@ namespace Iac.Api
             return services;
         }
 
-        public static IServiceCollection AddCustomConfiguration(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddCustomConfiguration(this IServiceCollection services,
+            IConfiguration configuration)
         {
             services.AddOptions();
             services.Configure<StackSettings>(configuration);
@@ -344,7 +330,7 @@ namespace Iac.Api
 
                     return new BadRequestObjectResult(problemDetails)
                     {
-                        ContentTypes = { "application/problem+json", "application/problem+xml" }
+                        ContentTypes = {"application/problem+json", "application/problem+xml"}
                     };
                 };
             });
@@ -356,44 +342,31 @@ namespace Iac.Api
         {
             var subscriptionClientName = configuration["SubscriptionClientName"];
 
-            if (configuration.GetValue<bool>("AzureServiceBusEnabled"))
+            services.AddSingleton<IEventBus, EventBusRabbitMQ>(sp =>
             {
-                services.AddSingleton<IEventBus, EventBusServiceBus.EventBusServiceBus>(sp =>
+                var rabbitMQPersistentConnection = sp.GetRequiredService<IRabbitMQPersistentConnection>();
+                var iLifetimeScope = sp.GetRequiredService<ILifetimeScope>();
+                var logger = sp.GetRequiredService<ILogger<EventBusRabbitMQ>>();
+                var eventBusSubcriptionsManager = sp.GetRequiredService<IEventBusSubscriptionsManager>();
+
+                var retryCount = 5;
+                if (!string.IsNullOrEmpty(configuration["EventBusRetryCount"]))
                 {
-                    var serviceBusPersisterConnection = sp.GetRequiredService<IServiceBusPersisterConnection>();
-                    var iLifetimeScope = sp.GetRequiredService<ILifetimeScope>();
-                    var logger = sp.GetRequiredService<ILogger<EventBusServiceBus.EventBusServiceBus>>();
-                    var eventBusSubcriptionsManager = sp.GetRequiredService<IEventBusSubscriptionsManager>();
+                    retryCount = int.Parse(configuration["EventBusRetryCount"]);
+                }
 
-                    return new EventBusServiceBus.EventBusServiceBus(serviceBusPersisterConnection, logger,
-                        eventBusSubcriptionsManager, subscriptionClientName, iLifetimeScope);
-                });
-            }
-            else
-            {
-                services.AddSingleton<IEventBus, EventBusRabbitMQ>(sp =>
-                {
-                    var rabbitMQPersistentConnection = sp.GetRequiredService<IRabbitMQPersistentConnection>();
-                    var iLifetimeScope = sp.GetRequiredService<ILifetimeScope>();
-                    var logger = sp.GetRequiredService<ILogger<EventBusRabbitMQ>>();
-                    var eventBusSubcriptionsManager = sp.GetRequiredService<IEventBusSubscriptionsManager>();
+                return new EventBusRabbitMQ(rabbitMQPersistentConnection, logger, iLifetimeScope,
+                    eventBusSubcriptionsManager, subscriptionClientName, retryCount);
+            });
 
-                    var retryCount = 5;
-                    if (!string.IsNullOrEmpty(configuration["EventBusRetryCount"]))
-                    {
-                        retryCount = int.Parse(configuration["EventBusRetryCount"]);
-                    }
-
-                    return new EventBusRabbitMQ(rabbitMQPersistentConnection, logger, iLifetimeScope, eventBusSubcriptionsManager, subscriptionClientName, retryCount);
-                });
-            }
 
             services.AddSingleton<IEventBusSubscriptionsManager, InMemoryEventBusSubscriptionsManager>();
 
             return services;
         }
 
-        public static IServiceCollection AddCustomAuthentication(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddCustomAuthentication(this IServiceCollection services,
+            IConfiguration configuration)
         {
             // prevent from mapping "sub" claim to nameidentifier.
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Remove("sub");
@@ -402,9 +375,8 @@ namespace Iac.Api
 
             services.AddAuthentication(options =>
             {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme; 
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-
             }).AddJwtBearer(options =>
             {
                 options.Authority = identityUrl;

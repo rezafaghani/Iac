@@ -41,6 +41,12 @@ namespace Iac.Infrastructure
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new ClientRequestEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new LocationEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new NetworkEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new OsEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new StackEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new StackItemsEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new StackItemVariablesEntityTypeConfiguration());
            
         }
 
