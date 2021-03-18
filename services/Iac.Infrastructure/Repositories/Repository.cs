@@ -19,8 +19,9 @@ namespace Iac.Infrastructure.Repositories
 
         public IUnitOfWork UnitOfWork => _context;
 
-        public T Add(T entity)
+        public T Add(T entity, long createdBy = 0)
         {
+            entity.SetCreatedBy(createdBy);
             entity.SetCreateDateTime();
             return _context.Set<T>()
                 .Add(entity)
@@ -33,16 +34,20 @@ namespace Iac.Infrastructure.Repositories
 
         }
 
-        public T Update(T entity)
+        public T Update(T entity, long? updateBy = null)
         {
+            if (updateBy != null)
+                entity.SetUpdatedBy((long)updateBy);
             entity.SetUpdateDateTime();
             return _context.Set<T>()
                 .Update(entity)
                 .Entity;
         }
 
-        public T Delete(T entity)
+        public T Delete(T entity, long? deleteBy = null)
         {
+            if (deleteBy != null)
+                entity.SetDeletedBy((long)deleteBy);
             entity.SetDeleteDateTime();
             entity.SetDeleted();
             return _context.Set<T>()

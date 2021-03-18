@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Data.Common;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
@@ -12,14 +11,14 @@ using EventBus.Abstractions;
 using EventBusServiceBus;
 using HealthChecks.UI.Client;
 using Iac.Api.Application.IntegrationEvents;
-using Iac.Api.Controllers;
+using Iac.Api.Controllers.V1;
+using Iac.Api.Infrastructure.ActionFilters;
 using Iac.Api.Infrastructure.AutofacModules;
 using Iac.Api.Infrastructure.Filters;
 using Iac.Api.Infrastructure.Services;
 using Iac.Infrastructure;
 using IntegrationEventLogEF;
 using IntegrationEventLogEF.Services;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -31,15 +30,20 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using RabbitMQ.Client;
+
+
 
 namespace Iac.Api
 {
     public class Startup
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="configuration"></param>
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -49,6 +53,7 @@ namespace Iac.Api
 
         public virtual IServiceProvider ConfigureServices(IServiceCollection services)
         {
+            
             services
                 .AddGrpc(options => { options.EnableDetailedErrors = true; })
                 .Services
@@ -60,7 +65,8 @@ namespace Iac.Api
                 .AddCustomIntegrations(Configuration)
                 .AddCustomConfiguration(Configuration)
                 .AddEventBus(Configuration)
-                .AddCustomAuthentication(Configuration);
+                .AddCustomAuthentication(Configuration)
+            .AddScoped<ModelValidationAttribute>();;
             //configure autofac
 
             var container = new ContainerBuilder();
@@ -84,16 +90,13 @@ namespace Iac.Api
                 loggerFactory.CreateLogger<Startup>().LogDebug("Using PATH BASE '{pathBase}'", pathBase);
                 app.UsePathBase(pathBase);
             }
-
-            app.UseSwagger()
-                .UseSwaggerUI(c =>
-                {
-                    c.SwaggerEndpoint(
-                        $"{(!string.IsNullOrEmpty(pathBase) ? pathBase : string.Empty)}/swagger/v1/swagger.json",
-                        "Ordering.API V1");
-                    c.OAuthClientId("orderingswaggerui");
-                    c.OAuthAppName("Ordering Swagger UI");
-                });
+            app.UseSwagger();
+            app.UseSwaggerUI(c => { 
+                
+                c.SwaggerEndpoint(
+                $"{(!string.IsNullOrEmpty(pathBase) ? pathBase : string.Empty)}/swagger/v1/swagger.json",
+                "Iac.Api V1");});
+            app.UseStaticFiles();
 
             app.UseRouting();
             app.UseCors("CorsPolicy");
@@ -163,8 +166,7 @@ namespace Iac.Api
                 // Added for functional tests
                 .AddApplicationPart(typeof(OsController).Assembly)
                 .AddNewtonsoftJson()
-                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
-                ;
+                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
             services.AddCors(options =>
             {
@@ -188,14 +190,14 @@ namespace Iac.Api
             hcBuilder
                 .AddNpgSql(
                     configuration["ConnectionString"],
-                    name: "OrderingDB-check",
-                    tags: new string[] {"orderingdb"});
+                    name: "IacDB-check",
+                    tags: new string[] {"iacdb"});
 
 
             hcBuilder
                 .AddRabbitMQ(
                     $"amqp://{configuration["EventBusConnection"]}",
-                    name: "ordering-rabbitmqbus-check",
+                    name: "iac-rabbitmqbus-check",
                     tags: new string[] {"rabbitmqbus"});
 
 
@@ -237,20 +239,24 @@ namespace Iac.Api
         public static IServiceCollection AddCustomSwagger(this IServiceCollection services,
             IConfiguration configuration)
         {
+            services.AddControllers();
             services.AddSwaggerGen(options =>
             {
-                options.DescribeAllEnumsAsStrings();
+                var xmlFilePath = Path.Combine(AppContext.BaseDirectory, "Iac.Api.xml");
+                options.IncludeXmlComments(xmlFilePath);
+                options.SupportNonNullableReferenceTypes();
+                //options.DescribeAllEnumsAsStrings();
                 options.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Title = "Iac HTTP API",
                     Version = "v1",
                     Description = "The Iac Service HTTP API"
                 });
-
-
-                options.OperationFilter<AuthorizeCheckOperationFilter>();
+              
+               options.OperationFilter<AuthorizeCheckOperationFilter>();
             });
-
+            
+            services.AddApiVersioning();
             return services;
         }
 

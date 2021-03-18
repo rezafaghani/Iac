@@ -2,6 +2,7 @@ using System.Reflection;
 using Autofac;
 using EventBus.Abstractions;
 using Iac.Api.Application.Commands.OsCommands;
+using Iac.Api.Application.Commands.OsCommands.Create;
 using Iac.Domain.SeedWork;
 using Iac.Infrastructure.Idempotency;
 using Iac.Infrastructure.Repositories;

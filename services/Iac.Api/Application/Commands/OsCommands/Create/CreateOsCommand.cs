@@ -1,7 +1,7 @@
 using System.Runtime.Serialization;
 using MediatR;
 
-namespace Iac.Api.Application.Commands.OsCommands
+namespace Iac.Api.Application.Commands.OsCommands.Create
 {
     public class CreateOsCommand : IRequest<bool>
     {
@@ -13,5 +13,7 @@ namespace Iac.Api.Application.Commands.OsCommands
 
         [DataMember]
         public string UserName { get; private set; }
+
+        public long LocationId { get; set; }
     }
 }

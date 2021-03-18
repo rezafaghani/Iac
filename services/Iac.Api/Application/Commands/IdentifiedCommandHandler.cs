@@ -2,6 +2,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EventBus.Extensions;
 using Iac.Api.Application.Commands.OsCommands;
+using Iac.Api.Application.Commands.OsCommands.Create;
 using Iac.Infrastructure.Idempotency;
 using MediatR;
 using Microsoft.Extensions.Logging;

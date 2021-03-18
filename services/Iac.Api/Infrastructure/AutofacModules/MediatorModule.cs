@@ -3,7 +3,10 @@ using Autofac;
 using FluentValidation;
 using Iac.Api.Application.Behaviors;
 using Iac.Api.Application.Commands.OsCommands;
+using Iac.Api.Application.Commands.OsCommands.Create;
 using Iac.Api.Application.Validations.OsValidators;
+using Iac.Domain.SeedWork;
+using Iac.Infrastructure.Repositories;
 using MediatR;
 
 namespace Iac.Api.Infrastructure.AutofacModules
@@ -31,6 +34,7 @@ namespace Iac.Api.Infrastructure.AutofacModules
                 var componentContext = context.Resolve<IComponentContext>();
                 return t => { object o; return componentContext.TryResolve(t, out o) ? o : null; };
             });
+            builder.RegisterGeneric(typeof(Repository<>)).As(typeof(IRepository<>));
 
             builder.RegisterGeneric(typeof(LoggingBehavior<,>)).As(typeof(IPipelineBehavior<,>));
             builder.RegisterGeneric(typeof(ValidatorBehavior<,>)).As(typeof(IPipelineBehavior<,>));

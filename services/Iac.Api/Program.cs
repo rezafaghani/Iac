@@ -79,13 +79,6 @@ IConfiguration GetConfiguration()
     return builder.Build();
 }
 
-(int httpPort, int grpcPort) GetDefinedPorts(IConfiguration config)
-{
-    var grpcPort = config.GetValue("GRPC_PORT", 5001);
-    var port = config.GetValue("PORT", 80);
-    return (port, grpcPort);
-}
-
 public class Program
 {
     public static string Namespace = typeof(Startup).Namespace;
